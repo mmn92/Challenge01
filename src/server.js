@@ -4,6 +4,8 @@ const server = express();
 
 server.use(express.json());
 
+let count = 0;
+
 const projects = [
   { id: "0", title: "Projeto 1", tasks: ["Task1"] },
   { id: "1", title: "Projeto 2", tasks: ["Task1", "Task2"] },
@@ -16,6 +18,13 @@ function checkIdMiddleware(req, res, next) {
   if (!checkProjectID(id)) {
     return res.status(400).json({ error: "Id not found" });
   }
+
+  next();
+}
+
+function countReqMiddleware(req, res, next) {
+  count++;
+  console.log(count);
 
   next();
 }
@@ -54,11 +63,11 @@ function updateTask(id, task) {
   }
 }
 
-server.get("/projects", (req, res) => {
+server.get("/projects", countReqMiddleware, (req, res) => {
   res.json(projects);
 });
 
-server.post("/projects", (req, res) => {
+server.post("/projects", countReqMiddleware, (req, res) => {
   const { id, title } = req.body;
 
   if (checkProjectID(id)) {
@@ -69,31 +78,46 @@ server.post("/projects", (req, res) => {
   }
 });
 
-server.put("/projects/:id", checkIdMiddleware, (req, res) => {
-  const { id } = req.params;
-  const { title } = req.body;
+server.put(
+  "/projects/:id",
+  countReqMiddleware,
+  checkIdMiddleware,
+  (req, res) => {
+    const { id } = req.params;
+    const { title } = req.body;
 
-  updateProject(id, title);
+    updateProject(id, title);
 
-  return res.json(projects);
-});
+    return res.json(projects);
+  }
+);
 
-server.delete("/projects/:id", checkIdMiddleware, (req, res) => {
-  const { id } = req.params;
+server.delete(
+  "/projects/:id",
+  countReqMiddleware,
+  checkIdMiddleware,
+  (req, res) => {
+    const { id } = req.params;
 
-  deleteProject(id);
+    deleteProject(id);
 
-  return res.json(projects);
-});
+    return res.json(projects);
+  }
+);
 
-server.post("/projects/:id/tasks", checkIdMiddleware, (req, res) => {
-  const { id } = req.params;
-  const { title } = req.body;
+server.post(
+  "/projects/:id/tasks",
+  countReqMiddleware,
+  checkIdMiddleware,
+  (req, res) => {
+    const { id } = req.params;
+    const { title } = req.body;
 
-  updateTask(id, title);
+    updateTask(id, title);
 
-  return res.json(projects);
-});
+    return res.json(projects);
+  }
+);
 
 server.listen(3000, () => {
   console.log("Server Listening on http://localhost:3000");

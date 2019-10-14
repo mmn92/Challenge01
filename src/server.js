@@ -36,6 +36,14 @@ function deleteProject(id) {
   }
 }
 
+function updateTask(id, task) {
+  for (let i = 0; i < projects.length; i++) {
+    if (projects[i].id === id) {
+      projects[i].tasks.push(task);
+    }
+  }
+}
+
 server.get("/projects", (req, res) => {
   res.json(projects);
 });
@@ -64,6 +72,15 @@ server.delete("/projects/:id", (req, res) => {
   const { id } = req.params;
 
   deleteProject(id);
+
+  return res.json(projects);
+});
+
+server.post("/projects/:id/tasks", (req, res) => {
+  const { id } = req.params;
+  const { title } = req.body;
+
+  updateTask(id, title);
 
   return res.json(projects);
 });

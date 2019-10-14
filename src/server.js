@@ -28,6 +28,14 @@ function updateProject(id, title) {
   }
 }
 
+function deleteProject(id) {
+  for (let i = 0; i < projects.length; i++) {
+    if (projects[i].id === id) {
+      projects.splice(i, 1);
+    }
+  }
+}
+
 server.get("/projects", (req, res) => {
   res.json(projects);
 });
@@ -35,7 +43,7 @@ server.get("/projects", (req, res) => {
 server.post("/projects", (req, res) => {
   const { id, title } = req.body;
 
-  if (projects[id]) {
+  if (checkProjectID(id)) {
     return res.status(400).json({ error: "id already in use" });
   } else {
     projects.push({ id, title, tasks: [] });
@@ -48,6 +56,14 @@ server.put("/projects/:id", (req, res) => {
   const { title } = req.body;
 
   updateProject(id, title);
+
+  return res.json(projects);
+});
+
+server.delete("/projects/:id", (req, res) => {
+  const { id } = req.params;
+
+  deleteProject(id);
 
   return res.json(projects);
 });

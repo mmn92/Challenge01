@@ -10,6 +10,16 @@ const projects = [
   { id: "2", title: "Projeto 3", tasks: [] }
 ];
 
+function checkIdMiddleware(req, res, next) {
+  const { id } = req.params;
+
+  if (!checkProjectID(id)) {
+    return res.status(400).json({ error: "Id not found" });
+  }
+
+  next();
+}
+
 function checkProjectID(id) {
   for (let i = 0; i < projects.length; i++) {
     if (projects[i].id === id) {
@@ -59,7 +69,7 @@ server.post("/projects", (req, res) => {
   }
 });
 
-server.put("/projects/:id", (req, res) => {
+server.put("/projects/:id", checkIdMiddleware, (req, res) => {
   const { id } = req.params;
   const { title } = req.body;
 
@@ -68,7 +78,7 @@ server.put("/projects/:id", (req, res) => {
   return res.json(projects);
 });
 
-server.delete("/projects/:id", (req, res) => {
+server.delete("/projects/:id", checkIdMiddleware, (req, res) => {
   const { id } = req.params;
 
   deleteProject(id);
@@ -76,7 +86,7 @@ server.delete("/projects/:id", (req, res) => {
   return res.json(projects);
 });
 
-server.post("/projects/:id/tasks", (req, res) => {
+server.post("/projects/:id/tasks", checkIdMiddleware, (req, res) => {
   const { id } = req.params;
   const { title } = req.body;
 
